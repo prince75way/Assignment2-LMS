@@ -1,0 +1,53 @@
+.card {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    position: relative; /* To position the title at the top right */
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    cursor: pointer; /* Pointer cursor on hover */
+  }
+  
+  .textContainer {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  .title {
+    position: absolute; /* Position the title absolutely in the top right */
+    top: 20px; /* Distance from the top */
+    left: 20px; /* Distance from the right */
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+    margin: 0; /* Remove any default margin */
+    cursor: pointer; /* Ensure cursor is pointer when hovering over the title */
+  }
+  
+  .description {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+  }
+  
+  .videoContainer {
+    flex: 1;
+    max-width: 50%;
+  }
+  
+  .video {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
