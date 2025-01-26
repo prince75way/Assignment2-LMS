@@ -1,68 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import styles from './DeleteCourse.module.css'; // Import CSS modules
-import { useGetCoursesQuery, useDeleteCourseMutation, useEditCourseMutation } from '../../services/courseServices'; // Import RTK Query hooks
+import { useGetCoursesQuery, useDeleteCourseMutation, useEditCourseMutation } from '../../services/courseServices';
 import { toast } from 'react-toastify';
+import { FiEdit, FiTrash2 } from 'react-icons/fi'; // Import React Icons
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Card, CardContent, CardMedia, Grid, IconButton } from '@mui/material';
+import styles from './DeleteCourse.module.css'; // Import CSS modules
 
 const CourseList = () => {
   const { data: coursesData, isLoading, error } = useGetCoursesQuery({});
-  const [deleteCourse, { isSuccess: isDeleteSuccess }] = useDeleteCourseMutation();
+  const [deleteCourse] = useDeleteCourseMutation();
   const [editCourse, { isSuccess: isEditSuccess }] = useEditCourseMutation();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedCourse, setEditedCourse] = useState<Course | null>(null);
+  const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
+
+  interface Course {
+    _id: string;
+    title: string;
+    description: string;
+    image: string;
+    category: string;
+  }
 
   useEffect(() => {
     if (isEditSuccess) {
       setIsEditMode(false);
-      // Fetch updated courses after successful edit
-      window.location.reload(); 
+      toast.success('Course updated successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
   }, [isEditSuccess]);
 
-interface Course {
-    _id: string;
-    title: string;
-    description: string;
-    image: string;
-}
-
-const handleDeleteCourse = async (courseId: string) => {
-    try {
-        await deleteCourse(courseId);
-        // Handle successful deletion (e.g., update courses state, show confirmation)
-        if (isDeleteSuccess) {
-            toast("Course Deleted Successfully")
-        }
-    } catch (err) {
+  const handleDeleteCourse = async () => {
+    if (courseToDelete) {
+      try {
+        await deleteCourse(courseToDelete);
+        toast.success('Course deleted successfully!');
+        setIsDeleteConfirmVisible(false);
+        setCourseToDelete(null);
+        window.location.reload();
+      } catch (err) {
         console.error('Error deleting course:', err);
-    }
-};
-
-interface EditCourse {
-    _id: string;
-    title: string;
-    description: string;
-    image: string;
-}
-
-const handleEditCourse = (course: EditCourse) => {
-    setIsEditMode(true);
-    setEditedCourse({ ...course });
-};
-
-  const handleSaveEdit = async () => {
-    try {
-      if (editedCourse) {
-        await editCourse(editedCourse);
+        toast.error('Failed to delete the course.');
       }
-    } catch (err) {
-      console.error('Error editing course:', err);
     }
   };
 
+  const handleEditCourse = (course: Course) => {
+    setIsEditMode(true);
+    setEditedCourse({ ...course });
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (editedCourse) {
-          setEditedCourse({ ...editedCourse, [e.target.name]: e.target.value } as Course);
+    if (editedCourse) {
+      setEditedCourse({ ...editedCourse, [e.target.name]: e.target.value });
+    }
+  };
+
+  const handleDeleteIconClick = (courseId: string) => {
+    setCourseToDelete(courseId);
+    setIsDeleteConfirmVisible(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editedCourse) {
+      try {
+        await editCourse(editedCourse);
+       
+      } catch (err) {
+        console.error('Error updating course:', err);
+        toast.error('Failed to update the course.');
       }
+    }
   };
 
   return (
@@ -70,66 +80,103 @@ const handleEditCourse = (course: EditCourse) => {
       {isLoading ? (
         <p>Loading courses...</p>
       ) : error ? (
-        <p>Error fetching courses: { 'status' in error ? error.status : error.message }</p>
+        <p>Error fetching courses: {error instanceof Error ? error.message : 'Unknown error'}</p>
       ) : (
-        <div className={styles.courseList}>
-          {coursesData && coursesData.map((course: Course) => (
-            <div key={course._id} className={styles.courseItem}>
-              <img src={course.image} alt={course.title} className={styles.courseImage} /> 
-              <div className={styles.courseDetails}>
-                <h3>{course.title}</h3>
-                <div className={styles.icons}>
-                  <span 
-                    className={`${styles.icon} ${styles.editIcon}`} 
-                    onClick={() => handleEditCourse(course)} 
-                  >
-                    {/* Edit icon (e.g., pencil icon) */}
-                    ✏️ 
-                  </span>
-                  <span 
-                    className={`${styles.icon} ${styles.deleteIcon}`} 
-                    onClick={() => handleDeleteCourse(course._id)} 
-                  >
-                    {/* Delete icon (e.g., trash icon) */}
-                    🗑️ 
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Grid container spacing={3}>
+          {coursesData &&
+            coursesData.map((course: Course) => (
+              <Grid item xs={12} sm={6} md={4} key={course._id}>
+                <Card className={styles.courseItem}>
+                  <CardMedia
+                    component="img"
+                    alt={course.title}
+                    height="200"
+                    image={course.image}
+                    title={course.title}
+                    className={styles.courseImage}
+                  />
+                  <CardContent className={styles.courseDetails}>
+                    <h3 className={styles.courseTitle}>{course.title}</h3>
+                    <p className={styles.courseDescription}>{course.description}</p>
+                    <div className={styles.icons}>
+                      <IconButton onClick={() => handleEditCourse(course)}>
+                        <FiEdit className={styles.editIcon} />
+                      </IconButton>
+                      <IconButton onClick={() => handleDeleteIconClick(course._id)}>
+                        <FiTrash2 className={styles.deleteIcon} />
+                      </IconButton>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+        </Grid>
       )}
 
-      {isEditMode && (
-        <div className={styles.editModal}> 
-          <div className={styles.modalContent}>
-            <h2>Edit Course</h2>
-            <form>
-              <div>
-                <label htmlFor="title">Title:</label>
-                <input 
-                  type="text" 
-                  id="title" 
-                  name="title" 
-                  value={editedCourse ? editedCourse.title : ''} 
-                  onChange={handleInputChange} 
-                />
-              </div>
-              <div>
-                <label htmlFor="description">Description:</label>
-                <textarea 
-                  id="description" 
-                  name="description" 
-                  value={editedCourse ? editedCourse.description : ''} 
-                  onChange={handleInputChange} 
-                />
-              </div>
-              <button type="button" onClick={handleSaveEdit}>Save</button>
-              <button type="button" onClick={() => setIsEditMode(false)}>Cancel</button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteConfirmVisible} onClose={() => setIsDeleteConfirmVisible(false)}>
+        <DialogTitle>Delete Course</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete this course?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCourse} color="primary">
+            Yes
+          </Button>
+          <Button onClick={() => setIsDeleteConfirmVisible(false)} color="secondary">
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Course Modal */}
+      <Dialog open={isEditMode} onClose={() => setIsEditMode(false)}>
+        <DialogTitle>Edit Course</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Title"
+            name="title"
+            value={editedCourse?.title || ''}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Description"
+            name="description"
+            value={editedCourse?.description || ''}
+            onChange={handleInputChange}
+            fullWidth
+            multiline
+            rows={4}
+            margin="normal"
+          />
+          <TextField
+            label="Category"
+            name="category"
+            value={editedCourse?.category || ''}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Image URL"
+            name="image"
+            value={editedCourse?.image || ''}
+            onChange={handleInputChange}
+            fullWidth
+            margin="normal"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveEdit} color="primary">
+            Save
+          </Button>
+          <Button onClick={() => setIsEditMode(false)} color="secondary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

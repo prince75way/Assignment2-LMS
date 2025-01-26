@@ -1,4 +1,3 @@
-
 import { useLoginMutation } from '../services/instructorService';
 import { useDispatch } from 'react-redux';
 import { setInstructor } from '../redux/slices/instructorSlice';
@@ -9,13 +8,19 @@ import { useForm, Controller } from 'react-hook-form'; // Import React Hook Form
 import { Checkbox } from '@mui/material';
 
 export default function InstructorLoginPage() {
-
   const [login, { isLoading: isLoggingIn, error: loginError }] = useLoginMutation();
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  // Provide default values for each form field
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      email: '', // Ensure email starts as an empty string
+      password: '', // Ensure password starts as an empty string
+      tandc: false, // Default value for checkbox
+    },
+  });
 
   // Handle instructor login
   const handleSubmitForm = async (formData: any) => {
@@ -25,7 +30,7 @@ export default function InstructorLoginPage() {
       const response = await login({ email, password }).unwrap();
       dispatch(setInstructor({ ...response.data, role: 'instructor' }));
       localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('role','instructor')
+      localStorage.setItem('refreshToken',response.data.refreshToken);
       toast("Login Successful");
       navigate('/');
     } catch (error) {

@@ -2,20 +2,19 @@ import React, { useState } from 'react';
 import { useAddCourseMutation } from '../../services/courseServices'; // Import the hook
 import styles from './AddCourseForm.module.css'; // Import CSS Modules
 import { toast } from 'react-toastify';
-
+import { useNavigate } from 'react-router-dom';
 const AddCourseForm = () => {
   const [courseTitle, setCourseTitle] = useState('');
   const [courseDescription, setCourseDescription] = useState('');
-  const [courseInstructor, setCourseInstructor] = useState('');
   const [courseCategory, setCourseCategory] = useState('');
   const [courseImage, setCourseImage] = useState('');
   const [coursePrice, setCoursePrice] = useState('');
   const [addCourse, { isLoading}] = useAddCourseMutation();
+  const navigate=useNavigate()
 
 interface CourseData {
     title: string;
     description: string;
-    instructor: string;
     category: string;
     image:string;
     price:string;
@@ -27,25 +26,33 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const courseData: CourseData = {
         title: courseTitle,
         description: courseDescription,
-        instructor: courseInstructor,
         category: courseCategory,
         image:courseImage,
         price:coursePrice
     };
 
     try {
-         await addCourse(courseData);
-        // Handle successful addition (e.g., show success message, clear form)
-        // alert(response);
+         const response=await addCourse({accessToken:localStorage.getItem('accessToken') || '', ...courseData});
+        // // Handle successful addition (e.g., show success message, clear form)
+        // // alert(response);
         // console.log(response)
-        toast("Course Added Successfully")
+        if(response.data.success){
 
-        setCourseTitle('');
-        setCourseDescription('');
-        setCourseInstructor('');
-        setCourseCategory('');
-        setCourseImage('');
-        setCoursePrice('')
+          toast("Course Added Successfully")
+  
+          setTimeout(() => {
+            
+            setCourseTitle('');
+            setCourseDescription('');
+            setCourseCategory('');
+            setCourseImage('');
+            setCoursePrice('')
+            navigate('/')
+          }, 3000);
+        }
+        else{
+          toast("Some Error Occured!! Try Later")
+        }
     } catch (err) {
         console.error('Error adding course:', err);
         alert('Error adding course. Please try again.');
@@ -77,17 +84,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             className={styles.textarea} 
           />
         </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="instructor">Instructor:</label>
-          <input 
-            type="text" 
-            id="instructor" 
-            value={courseInstructor} 
-            onChange={(e) => setCourseInstructor(e.target.value)} 
-            required 
-            className={styles.input} 
-          />
-        </div>
+        
         <div className={styles.formGroup}>
           <label htmlFor="category">Category:</label>
           <input 

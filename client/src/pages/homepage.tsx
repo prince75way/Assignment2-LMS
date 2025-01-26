@@ -5,10 +5,30 @@ import { RootState, AppDispatch } from "../redux/store";
 import { setFilterCategory } from "../redux/slices/courseSlice";
 import CourseList from "../components/CouseLIst";
 
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import { useNavigate } from 'react-router-dom';
+
 const Home: React.FC = () => {
+
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setAge(event.target.value as string);
+    handleFilterChange(event.target.value)
+  };
+
   const dispatch = useDispatch<AppDispatch>();
   const { data: courses, isLoading, error } = useGetCoursesQuery({});
   const filterCategory = useSelector((state: RootState) => state.course.filterCategory);
+
+  const navigate = useNavigate(); // Using useNavigate from react-router-dom v6
 
   interface Course {
     title: string;
@@ -38,31 +58,56 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div>
-      <h1>Available Courses</h1>
+    <>
+      {/* Welcome Section */}
+      <Box sx={{ py: 8, backgroundColor: '#f4f6f8' }}>
+        <Container maxWidth="md">
+          <Typography variant="h3" gutterBottom align="center" color="primary">
+            Welcome to Our Learning Platform
+          </Typography>
+          <Typography variant="h6" paragraph align="center" color="textSecondary">
+            Discover a wide range of courses designed to help you master new skills and advance your career. Start exploring today!
+          </Typography>
+          {/* Navigate to Courses */}
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              size="large" 
+              onClick={() => navigate('#courses')} // Use navigate() for routing
+            >
+              Browse Courses
+            </Button>
+          </Box>
+        </Container>
+      </Box>
 
-      {/* Filter Dropdown */}
-      <select
-        value={filterCategory}
-        onChange={(e) => handleFilterChange(e.target.value)}
-        style={{
-          padding: "8px 12px",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-          fontSize: "16px",
-          cursor: "pointer",
-          marginBottom:"25px"
-        }}
-      >
-        <option value="all">All</option>
-        <option value="programming">Programming</option>
-        <option value="design">Design</option>
-        <option value="marketing">Marketing</option>
-      </select>
+      {/* Course Filter Section */}
+      <Box sx={{ minWidth: 120, py: 4 }} id="courses">
+        <Container maxWidth="sm">
+          <FormControl sx={{ minWidth: 160, marginBottom: 6 }} fullWidth>
+            <InputLabel id="course-select-label">Filter Courses</InputLabel>
+            <Select
+              labelId="course-select-label"
+              id="course-select"
+              value={age}
+              onChange={handleChange}
+            >
+              <MenuItem value={"all"}>All</MenuItem>
+              <MenuItem value={"Programming"}>Programming</MenuItem>
+              <MenuItem value={"Development"}>Development</MenuItem>
+            </Select>
+          </FormControl>
+        </Container>
+      </Box>
 
-      {/* Course List */}
-      {filteredCourses && <CourseList courses={filteredCourses} />}
-    </div>
+      {/* Display Courses */}
+      <Container maxWidth="lg">
+        {filteredCourses && (
+          <CourseList courses={filteredCourses} />
+        )}
+      </Container>
+    </>
   );
 };
 

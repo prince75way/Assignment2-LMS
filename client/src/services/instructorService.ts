@@ -12,6 +12,7 @@ export interface InstructorLoginResponse {
     name: string;
     email: string;
     accessToken: string;
+    refreshToken:string;
   };
 }
 
@@ -24,6 +25,13 @@ export const instructorService = createApi({
         url: '/login',
         method: 'POST',
         body: credentials, // Sending email and password for login
+      }),
+    }),
+    logout: builder.mutation<InstructorLoginResponse, InstructorLoginRequest>({
+      query: (accessToken) => ({
+        url: '/logout',
+        method: 'POST',
+        body: {accessToken}, // Sending email and password for login
       }),
     }),
   }),

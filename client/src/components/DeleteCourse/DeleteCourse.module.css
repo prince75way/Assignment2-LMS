@@ -1,237 +1,64 @@
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; 
-  }
-  
-  .deleteButton {
-    background-color: #ff0000;
-    color: #fff;
-    border: none;
-    padding: 15px 30px; 
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease-in-out; 
-  }
-  
-  .deleteButton:hover {
-    background-color: #c50000;
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  .deleteIcon {
-    margin-right: 5px;
-  }
-  
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modalContent {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 800px;
-    overflow-y: auto;
-    height: 90vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-  }
-  
-  .closeIcon {
-    float: right;
-    cursor: pointer;
-    font-size: 20px;
-  }
-  
-  .courseList {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    grid-gap: 20px;
-    overflow-y: auto;
-    flex-grow: 1;
-  }
-  
-  .courseItem {
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .courseItem:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transform: translateY(-2px); 
-  }
-  
-  .courseImage {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 10px;
-    border-radius: 5px; 
-  }
-  
-  .courseDetails {
-    text-align: center;
-  }
-  
-  .deleteCourseButton {
-    background-color: #ff0000;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-top: 10px;
-    border-radius: 3px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .deleteCourseButton:hover {
-    background-color: #c50000;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* ... (existing styles for .container, .courseList, .courseItem, .courseImage, .courseDetails) ... */
-  
-  .icons {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .icon {
-    font-size: 24px;
-    cursor: pointer;
-    margin-right: 10px;
-  }
-  
-  .editIcon {
-    color: #007bff; /* Blue for edit */
-  }
-.confirmButton {
-    background-color: #28a745; /* Green for confirm */
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease-in-out;
-    margin-left: 10px;
+  padding: 20px;
 }
 
-.confirmButton:hover {
-    background-color: #218838;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-  .deleteIcon {
-    color: #dc3545; /* Red for delete */
-  }
-  
- 
-  
-  .modalContent {
-    /* ... (styles for the modal content) ... */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-  }
-
-.editModal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+.courseItem {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.editModalContent {
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 15px;
-    max-width: 900px; 
-    width: 90%; 
-    max-height: 95vh; 
-    overflow-y: auto; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
-    animation: fadeIn 0.3s ease-in-out;
+.courseItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.courseImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
 }
 
-.editModal form {
-    display: flex;
-    flex-direction: column;
+.courseDetails {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.editModal form div {
-    margin-bottom: 25px;
+.courseTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
 }
 
-.editModal form label {
-    font-weight: bold;
-    margin-bottom: 8px;
-    font-size: 16px;
+.courseDescription {
+  font-size: 14px;
+  color: #555;
+  max-height: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.editModal form input,
-.editModal form textarea {
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 16px;
-    transition: border-color 0.2s;
+.icons {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
 }
 
-.editModal form input:focus,
-.editModal form textarea:focus {
-    border-color: #007bff;
-    outline: none;
+.icon {
+  cursor: pointer;
+  font-size: 20px;
 }
 
-.editModal form button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 15px 25px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: all 0.2s ease-in-out;
-    font-size: 16px;
+.editIcon:hover {
+  color: #007bff;
 }
 
-.editModal form button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+.deleteIcon:hover {
+  color: #dc3545;
 }
