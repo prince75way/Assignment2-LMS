@@ -10,6 +10,7 @@ interface InstructorState {
     accessToken: string;
   } | null;
   isAuthenticated: boolean;
+  role:string |null;
   error: string | null;
   loading: boolean;
 }
@@ -18,6 +19,7 @@ const initialState: InstructorState = {
   instructor: null,
   isAuthenticated: false,
   error: null,
+  role:null,
   loading: false,
 };
 
@@ -29,9 +31,10 @@ const instructorSlice = createSlice({
     setInstructor: (state, action: PayloadAction<InstructorLoginResponse['data'] & { role: string }>) => {
       state.instructor = { ...action.payload };
       state.isAuthenticated = true;
+      state.role='instructor';
       state.error = null;
     },
-    logoutInstructor: (state) => {
+    logout: (state) => {
       state.instructor = null;
       state.isAuthenticated = false;
       state.error = null;
@@ -72,7 +75,7 @@ const instructorSlice = createSlice({
 });
 
 // Export the actions from the slice
-export const { setInstructor, logoutInstructor, setLoading, setError } = instructorSlice.actions;
+export const { setInstructor, logout, setLoading, setError } = instructorSlice.actions;
 
 // Export the reducer
 export default instructorSlice.reducer;

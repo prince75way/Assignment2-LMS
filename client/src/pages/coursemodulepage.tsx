@@ -6,8 +6,10 @@ export const CourseModulesPage = () => {
   const { courseName } = useParams(); // Get course name from the dynamic URL
   const location = useLocation(); // Access location object
   const courseId = location.state?.courseId; // Retrieve courseId from state
-
+  const price = location.state?.price; 
   if (!courseId) return <p>Invalid course or missing course ID</p>;
+
+
 
   // Use the hook to fetch modules by courseId
   const { data: modules, isLoading, error } = useGetModulesByCourseIdQuery(courseId);
@@ -25,6 +27,7 @@ export const CourseModulesPage = () => {
           description={module.description}
           videoUrl={module.videoUrl}
           courseId={courseId}
+          price={price}
         />
       ))}
     </div>

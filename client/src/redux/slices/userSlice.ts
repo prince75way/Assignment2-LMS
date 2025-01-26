@@ -8,6 +8,7 @@ interface AuthState {
     name: string;
     email: string;
     accessToken: string;
+    refreshToken:string;
   } | null;
   isAuthenticated: boolean;
   error: string | null;
@@ -100,7 +101,7 @@ const authSlice = createSlice({
         userService.endpoints.checkEnrollment.matchFulfilled,
         (state, action: PayloadAction<EnrolledResponse>) => {
           const { payload } = action;
-          state.enrolled = payload.enrolled; // Set the enrollment status
+          state.enrolled = payload.data.enrolled; // Set the enrollment status
           state.error = null;
         }
       )

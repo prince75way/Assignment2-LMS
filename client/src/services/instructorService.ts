@@ -26,6 +26,13 @@ export const instructorService = createApi({
         body: credentials, // Sending email and password for login
       }),
     }),
+    logout: builder.mutation<InstructorLoginResponse, InstructorLoginRequest>({
+      query: (accessToken) => ({
+        url: '/logout',
+        method: 'POST',
+        body: {accessToken}, // Sending email and password for login
+      }),
+    }),
   }),
 });
 

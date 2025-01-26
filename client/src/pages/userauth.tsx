@@ -18,8 +18,15 @@ export default function UserAuth() {
   const [login, { isLoading: isLoggingIn, error: loginError }] = useLoginMutation();
   const [signup, { isLoading: isSigningUp, error: signupError }] = useSignupMutation();
 
-  // Initialize React Hook Form
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
+  // Initialize React Hook Form with default values
+  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+    defaultValues: {
+      email: '',
+      password: '',
+      name: '',  // Set default value for name as empty string
+      tandc: false,  // Set default value for tandc as false
+    },
+  });
 
   // Handle sign in (login) and sign up actions
   interface FormData {
@@ -37,10 +44,9 @@ export default function UserAuth() {
         const response = await signup({ name: name || '', email, password }).unwrap();
         dispatch(setUser(response.data)); // Dispatch user data on successful signup
         localStorage.setItem('accessToken', response.data.accessToken); // Store accessToken in localStorage
-        // alert('Signup successful!');
-        toast("Sign-in Successful")
+        localStorage.setItem('refreshToken',response.data.refreshToken)
+        toast("Sign-UP Successful");
       } catch (error) {
-        // Assuming error has a response message from the API
         alert((error as any)?.data?.message || 'Error during signup');
       }
     } else {
@@ -48,19 +54,16 @@ export default function UserAuth() {
         const response = await login({ email, password }).unwrap();
         dispatch(setUser(response.data)); // Dispatch user data on successful login
         localStorage.setItem('accessToken', response.data.accessToken); // Store accessToken in localStorage
-        // alert('Login successful!');
-        toast("Login Successful")
+        localStorage.setItem('refreshToken',response.data.refreshToken)
+        toast("Login Successful");
       } catch (error) {
-        // Assuming error has a response message from the API
         alert((error as any)?.data?.message || 'Error during login');
       }
     }
   };
-  
 
   return (
     <AppProvider theme={theme}>
-     
       <Container
         maxWidth="xs"
         sx={{
@@ -220,19 +223,16 @@ export default function UserAuth() {
 
           {/* Error Messages */}
           {loginError && (
-  <Typography variant="body2" color="error" align="center" sx={{ marginTop: 2 }}>
-    {/* Check if the error has a 'data' property and display the message */}
-    {('data' in loginError ? (loginError as any).data?.message : 'error' in loginError ? (loginError as any).error : 'Unknown error')}
-  </Typography>
-)}
+            <Typography variant="body2" color="error" align="center" sx={{ marginTop: 2 }}>
+              {('data' in loginError ? (loginError as any).data?.message : 'error' in loginError ? (loginError as any).error : 'Unknown error')}
+            </Typography>
+          )}
 
-{signupError && (
-  <Typography variant="body2" color="error" align="center" sx={{ marginTop: 2 }}>
-    {/* Check if the error has a 'data' property and display the message */}
-    {('data' in signupError ? (signupError as any).data?.message : 'error' in signupError ? (signupError as any).error : 'Unknown error')}
-  </Typography>
-)}
-
+          {signupError && (
+            <Typography variant="body2" color="error" align="center" sx={{ marginTop: 2 }}>
+              {('data' in signupError ? (signupError as any).data?.message : 'error' in signupError ? (signupError as any).error : 'Unknown error')}
+            </Typography>
+          )}
 
           {/* Toggle between Login and Signup */}
           <Typography variant="body2" align="center" sx={{ marginTop: 2, color: 'white' }}>

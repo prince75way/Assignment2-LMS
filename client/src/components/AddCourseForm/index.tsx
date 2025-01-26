@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 const AddCourseForm = () => {
   const [courseTitle, setCourseTitle] = useState('');
   const [courseDescription, setCourseDescription] = useState('');
-  const [courseInstructor, setCourseInstructor] = useState('');
   const [courseCategory, setCourseCategory] = useState('');
   const [courseImage, setCourseImage] = useState('');
   const [coursePrice, setCoursePrice] = useState('');
@@ -15,7 +14,6 @@ const AddCourseForm = () => {
 interface CourseData {
     title: string;
     description: string;
-    instructor: string;
     category: string;
     image:string;
     price:string;
@@ -27,14 +25,13 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const courseData: CourseData = {
         title: courseTitle,
         description: courseDescription,
-        instructor: courseInstructor,
         category: courseCategory,
         image:courseImage,
         price:coursePrice
     };
 
     try {
-         await addCourse(courseData);
+         await addCourse({accessToken:localStorage.getItem('accessToken') || '', ...courseData});
         // Handle successful addition (e.g., show success message, clear form)
         // alert(response);
         // console.log(response)
@@ -42,7 +39,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         setCourseTitle('');
         setCourseDescription('');
-        setCourseInstructor('');
         setCourseCategory('');
         setCourseImage('');
         setCoursePrice('')
@@ -77,17 +73,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             className={styles.textarea} 
           />
         </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="instructor">Instructor:</label>
-          <input 
-            type="text" 
-            id="instructor" 
-            value={courseInstructor} 
-            onChange={(e) => setCourseInstructor(e.target.value)} 
-            required 
-            className={styles.input} 
-          />
-        </div>
+        
         <div className={styles.formGroup}>
           <label htmlFor="category">Category:</label>
           <input 
