@@ -5,16 +5,16 @@ import { body } from 'express-validator';
 export const validateCourseCreation = [
   body('title').notEmpty().withMessage('Title is required'),
   body('description').notEmpty().withMessage('Description is required'),
-  body('instructor').notEmpty().withMessage('Instructor ID is required'),
+  body('accessToken').notEmpty().withMessage('AccessToken ID is required'),
   body('category').notEmpty().withMessage('Category is required'),
+  body('price').notEmpty().withMessage('Price is required')
 
 ];
 
 
 export const enrollValidationRules = [
-    body('userId')
-      .notEmpty().withMessage('User ID is required')
-      .isString().withMessage('User ID must be a string'),
+    body('accessToken')
+      .notEmpty().withMessage('AccessToken is required'),
     body('courseId')
       .notEmpty().withMessage('Course ID is required')
       .isString().withMessage('Course ID must be a string')

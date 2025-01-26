@@ -4,6 +4,7 @@ import {UserDTO} from './user.dto';
 import bcrypt from 'bcrypt';
 import { generateTokens } from '../../utils/tokenHelper';
 import jwt from 'jsonwebtoken';
+import { validateToken } from '../../utils/validate.accesstoken';
 
 /**
  * Signs up a new user.
@@ -23,7 +24,12 @@ export const signupService = async (userData: UserDTO) => {
  
   const existingUser = await User.findOne({ email: userData.email });
   if (existingUser) {
-    throw new Error('User with this email already exists');
+    return{
+      sucess:false,
+      message:"User with this email already Exist",
+      status:409,
+      data:"User with this email already exists"
+     }
   }
 
 
@@ -46,12 +52,15 @@ export const signupService = async (userData: UserDTO) => {
   await newUser.save();
 
   return {
-    id: newUser._id,
+    success:true,
+    message:"User Signuped Successfully",
+    status:200,
+   data: {id: newUser._id,
     name: newUser.name,
     email: newUser.email,
     role: newUser.role,
     accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
+    refreshToken: tokens.refreshToken,}
   };
 };
 
@@ -62,29 +71,45 @@ export const signupService = async (userData: UserDTO) => {
    * @returns {Promise<{accessToken: string, refreshToken: string}>} - The access and refresh tokens for the user.
    * @throws Error - If the user does not exist or the credentials are invalid.
    */
-export const loginService = async (loginData: UserDTO) => {
-
-  const user = await User.findOne({ email: loginData.email });
-  if (!user) {
-    throw new Error('NO SUCH USER EXIST');
-  }
-
-  // Compare the provided password with the stored hashed password
-  const isMatch = await bcrypt.compare(loginData.password, user.password);
+  export const loginService = async (loginData: UserDTO) => {
+    const user = await User.findOne({ email: loginData.email });
+    if (!user) {
+     return{
+      sucess:false,
+      message:"No Such user exist",
+      status:404,
+      data:"No such user exist"
+     }
+    }
   
-  if (!isMatch) {
-    throw new Error ('Invalid credentials');
-  }
-
-
-  return {
-    name:user.name,
-    email:user.email,
-    accessToken: user.accessToken,
-    
+    const isMatch = await bcrypt.compare(loginData.password, user.password);
+    if (!isMatch) {
+      return{
+        sucess:false,
+        message:"Invalid Credentials",
+        status:401,
+        data:"Invalid Credentials"
+       }
+    }
+  
+    const tokens = generateTokens(user._id.toString());
+    user.accessToken = tokens.accessToken;
+    user.refreshToken = tokens.refreshToken;
+    await user.save();
+  
+    return {
+      
+        success:true,
+        message:"Success Login ",
+        status:200,
+        data:
+     { name: user.name,
+      email: user.email,
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,}
+    };
   };
-};
-
+  
 
 
   /**
@@ -96,7 +121,12 @@ export const loginService = async (loginData: UserDTO) => {
    * @returns {Promise<{ courseId: string, watchedModules: string[] }>} - The updated course progress.
    * @throws Error - If the user is not found or the module is already watched.
    */
-export const updateUserProgressService = async (userId: string, courseId: string, moduleId: string) => {
+export const updateUserProgressService = async (accessToken: string, courseId: string, moduleId: string) => {
+  const decoded=await validateToken(accessToken);
+
+  const userId=decoded.userId;
+  
+  
   const user = await User.findById(userId);
   if (!user) {
     throw new Error('User not found');
@@ -146,10 +176,15 @@ export const getUserProgressService = async (userId: string) => {
     throw new Error('User not found');
   }
 
-  const progressDetails = await Promise.all(user.courseProgress.map(async (progress) => {
-    const course = await getCourseById(progress.courseId.toString());  
+  const progressDetails = await Promise.all(user.courseProgress.map(async (progress: any) => {
+    // console.log(progress.courseId, "   id check    ");
+
+    // Ensure courseId is populated and valid
+    const courseId = progress.courseId._id ? progress.courseId._id.toString() : progress.courseId.toString();
+    const course = await getCourseById(courseId);
 
     if (!course) {
+      console.log(`Course not found for courseId: ${courseId}`);
       return null;
     }
 
@@ -168,6 +203,7 @@ export const getUserProgressService = async (userId: string) => {
 
   return progressDetails.filter((detail) => detail !== null);  // Remove null values in case any course was not found
 };
+
 
 
 

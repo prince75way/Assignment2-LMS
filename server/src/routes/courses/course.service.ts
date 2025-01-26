@@ -1,6 +1,7 @@
 import { addCourseToUserProgressService } from '../user/user.service'; 
 import Course from './course.schema';
 import { CourseDTO } from './course.dto';
+import { validateToken } from '../../utils/validate.accesstoken';
 
 
 /**
@@ -9,7 +10,25 @@ import { CourseDTO } from './course.dto';
  * @returns {Promise<Course>} - The newly created course
  */
 export const createCourseService = async (courseData: CourseDTO) => {
-  const newCourse = new Course(courseData);
+
+  if (!courseData.accessToken) {
+    console.log("accesstokrn hi nhi mil ra");
+    return
+  }
+  const decoded = await validateToken(courseData.accessToken);
+
+  const instructor =decoded.userId
+
+
+  const newCourse = new Course({
+    title:courseData.title,
+    description:courseData.description,
+    price:courseData.price,
+    instructor:instructor,
+    image:courseData.image,
+    category:courseData.category
+
+  });
   await newCourse.save();
   return newCourse;
 };
@@ -27,12 +46,14 @@ export const createCourseService = async (courseData: CourseDTO) => {
  * @param {string} courseId - The ID of the course to enroll in.
  * @returns {Promise<Course>} - The updated course document.
  */
-export const enrollInCourseService = async (userId: string, courseId: string): Promise<CourseDTO> => {
+export const enrollInCourseService = async (accessToken: string, courseId: string): Promise<CourseDTO> => {
   const course = await Course.findById(courseId);
   if (!course) {
     throw new Error('Course not found');
   }
 
+  const decoded=await validateToken(accessToken)
+  const userId=await decoded.userId;
   if (course.enrolledStudents.includes(userId)) {
     throw new Error('Student is already enrolled in this course');
   }
@@ -97,15 +118,24 @@ export const deleteCourseService = async (courseId: string) => {
  * @param {string} courseId - The ID of the course to fetch.
  * @returns {Promise<Course | null>} - The course document with populated modules or null if not found.
  */
+import mongoose from "mongoose";
+
 export const getCourseById = async (courseId: string) => {
   try {
-    const course = await Course.findById(courseId).populate('modules').exec();
+
+    // console.log("the courseid is: ",courseId)
+    const course=await Course.findById(courseId).populate('modules').exec();
+
+    if (!course) {
+      throw new Error("Course not found");
+    }
+
     return course;
-  } catch (error) {
-    throw new Error('Error fetching course');
+  } catch (error: any) {
+    console.error("The error is:", error.message || error);
+    throw new Error(error.message || "Error fetching course");
   }
 };
-
 
 
 

@@ -23,9 +23,12 @@ export const createModule = asyncHandler(async (req: Request, res: Response): Pr
   if (!token) {
     return sendResponse(res, 401, false, 'Authorization token is required');
   }
+  console.log("Token is: ",token)
+const decoded=await validateToken(token);
+const userId=await decoded.userId
 
-  await (token);
-  const instructor = await Instructor.findOne({ accessToken: token });
+
+  const instructor = await Instructor.findById(userId)
   if (!instructor) {
     return sendResponse(res, 403, false, 'Access denied. Only instructors can add modules.');
   }

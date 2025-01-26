@@ -12,7 +12,7 @@ import { sendResponse } from '../../utils/response.helper';
 import { validateToken } from '../../utils/validate.token';
 import User from './user.schema';
 
-
+import { validateToken as validateAccessToken } from '../../utils/validate.accesstoken';
 
 /**
  * Handles sign up of a new user
@@ -21,8 +21,8 @@ import User from './user.schema';
  * @returns {Promise<void>} - resolves with a successful response
  */
 export const signupController = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const user = await signupService(req.body);
-  sendResponse(res, 201, true, 'User signed up successfully', user);
+  const result = await signupService(req.body);
+  res.status(result.status).json({"success":result.success,"message":result.message,"data":result.data})
 });
 
 
@@ -35,8 +35,9 @@ export const signupController = asyncHandler(async (req: Request, res: Response)
  * @returns {Promise<void>} - resolves with a successful response
  */
 export const loginController = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const tokens = await loginService(req.body);
-  sendResponse(res, 200, true, 'User logged in successfully', tokens);
+  const result = await loginService(req.body);
+  // sendResponse(res, 200, true, 'User logged in successfully', tokens);
+  res.status(result.status).json({"success":result.success,"message":result.message,"data":result.data})
 });
 
 
@@ -55,10 +56,9 @@ export const loginController = asyncHandler(async (req: Request, res: Response):
  */
 export const updateWatchedModules = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { courseId } = req.params;
-  const { moduleId, tokenId } = req.body; // moduleId provided in request body
-  const userId = await validateToken(tokenId);
+  const { moduleId, accessToken } = req.body; // moduleId provided in request body
 
-  const result = await updateUserProgressService(userId.userId, courseId, moduleId);
+  const result = await updateUserProgressService(accessToken, courseId, moduleId);
   sendResponse(res, 200, true, 'Progress updated successfully', result);
 });
 
@@ -74,10 +74,25 @@ export const updateWatchedModules = asyncHandler(async (req: Request, res: Respo
  * @returns {Promise<void>} - Resolves with the user's progress details.
  */
 export const getUserProgress = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const token = req.body.token;
-  const userId = await validateToken(token);
+  // Extract the Bearer token from the Authorization header
+  const authorizationHeader = req.headers.authorization as string;
+  // console.log("Full Authorization Header:", authorizationHeader);
+  
+  if (!authorizationHeader.startsWith("Bearer ")) {
+    sendResponse(res, 401, false, 'Authorization header must start with Bearer');
+    return;
+  }
+  
+  const accessToken = authorizationHeader.split(" ")[1]; // Get the token after 'Bearer '
+  // console.log("Extracted accessToken:", accessToken);
+
+  // Validate and extract the userId from the accessToken
+  const userId = await validateAccessToken(accessToken);
+
+  // Get the user progress by calling the service function
   const progress = await getUserProgressService(userId.userId);
 
+  // Respond with the user's progress
   sendResponse(res, 200, true, 'User progress retrieved successfully', progress);
 });
 

@@ -4,7 +4,7 @@ import * as validation from './user.validation';
 import * as controller from './user.controller';
 
 
-
+import { tokenChecker } from '../../common/helper/tokenChecker';
 
 
 const router = express.Router();
@@ -19,13 +19,13 @@ router.post('/login', validation.userLoginValidation, validateRequest, controlle
 router.post('/watchedmodule/:courseId', validation.validateUpdateWatchedModules, validateRequest, controller.updateWatchedModules);
 
 // Route to get the user progress
-router.get('/progress', controller.getUserProgress);
+router.get('/progress',tokenChecker, controller.getUserProgress);
 
 // To refresh the tokens with the refresh-token
 router.post('/refresh-token', validation.validateRefreshToken, controller.refreshToken as unknown as RequestHandler);
 
 
-router.post('/check-enrollment',controller.checkenrolled)
+router.post('/check-enrollment',tokenChecker,controller.checkenrolled)
 
 
 

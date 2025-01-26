@@ -28,11 +28,11 @@ export const createCourse = asyncHandler(async (req: Request, res: Response): Pr
  * @throws {Error} - Rejects with an error if course enrollment fails
  */
 export const enrollInCourse = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { userId, courseId } = req.body;  
+  const { accessToken, courseId } = req.body;  
 
   try {
 
-    const result = await enrollInCourseService(userId, courseId);
+    const result = await enrollInCourseService(accessToken, courseId);
 
    
     sendResponse(res, 200, true, 'Student enrolled successfully', result);

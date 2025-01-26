@@ -8,6 +8,7 @@ export interface CourseDTO extends BaseSchema {
     modules: string[]; 
     category: string;   
     image?: string;
+    accessToken?:string;
     enrolledStudents:string[]     
   }
   
