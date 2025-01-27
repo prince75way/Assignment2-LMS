@@ -6,12 +6,12 @@ export const tokenChecker = (req: Request, res: Response, next: NextFunction): v
   const authHeader = req.headers.authorization;
 
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if ((!authHeader || !authHeader.startsWith('Bearer ')) &&  req.body.accessToken==="") {
     res.status(401).json({ message: 'Access token missing or invalid' });
     return; // End the function after sending the response
   }
 
-  const token = authHeader.split(' ')[1]||req.body.accessToken;
+  const token = authHeader ? authHeader.split(' ')[1] : req.body.accessToken;
 
   try {
     // Verify the access token
